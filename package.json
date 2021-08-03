@@ -1,0 +1,12 @@
+{
+  "name": "qrgen",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "start": "func start",
+    "test": "echo \"No tests yet...\""
+  },
+  "dependencies": {
+    "qrcode": "^1.4.4"
+  }
+}

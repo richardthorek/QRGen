@@ -2,9 +2,10 @@ const QRCode = require('qrcode');
 
 module.exports = async function (context, req) {
     context.log('JavaScript HTTP trigger function processed a request.');
-
-    if(req.query.text) { 
+    
+    if (req.query.text) {
         let code;
+
         try {
             code = await QRCode.toDataURL(req.query.text);
         } catch (err) {
@@ -12,11 +13,14 @@ module.exports = async function (context, req) {
             throw err;
         }
         if (code) {
+
             context.res = {
                 body: code
             }
+
         } else {
             context.res = {
+
                 body: "Error: QR Code rendering error",
                 status: 400
             }

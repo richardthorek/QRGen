@@ -1,10 +1,26 @@
 {
   "name": "qrgen",
   "version": "1.0.0",
-  "description": "",
+  "description": "A serverless Azure Functions API for generating QR codes with flexible configuration options",
+  "main": "QRGEN/index.js",
   "scripts": {
     "start": "func start",
-    "test": "echo \"No tests yet...\""
+    "test": "echo \"No tests yet...\"",
+    "deploy": "func azure functionapp publish"
+  },
+  "keywords": [
+    "qr-code",
+    "qrcode",
+    "generator",
+    "azure-functions",
+    "serverless",
+    "api"
+  ],
+  "author": "",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/richardthorek/QRGen.git"
   },
   "dependencies": {
     "qrcode": "^1.4.4"

@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QRGen - Web Example</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2em;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 0.9em;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .input-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 14px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .qr-result {
+            margin-top: 30px;
+            text-align: center;
+            display: none;
+        }
+
+        .qr-result.active {
+            display: block;
+        }
+
+        .qr-result img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            margin-bottom: 15px;
+        }
+
+        .download-btn {
+            background: #4CAF50;
+            margin-top: 10px;
+        }
+
+        .download-btn:hover {
+            box-shadow: 0 10px 20px rgba(76, 175, 80, 0.4);
+        }
+
+        .error {
+            background: #ffebee;
+            color: #c62828;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 15px;
+            display: none;
+        }
+
+        .error.active {
+            display: block;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+            color: #667eea;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .color-input {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        input[type="color"] {
+            width: 60px;
+            height: 40px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔲 QR Code Generator</h1>
+        <p class="subtitle">Generate custom QR codes with ease</p>
+
+        <form id="qrForm">
+            <div class="form-group">
+                <label for="text">Text or URL *</label>
+                <input type="text" id="text" placeholder="Enter text or URL to encode" required>
+            </div>
+
+            <div class="input-group">
+                <div class="form-group">
+                    <label for="size">Size (px)</label>
+                    <input type="number" id="size" value="300" min="100" max="2000">
+                </div>
+
+                <div class="form-group">
+                    <label for="errorLevel">Error Correction</label>
+                    <select id="errorLevel">
+                        <option value="L">Low (7%)</option>
+                        <option value="M" selected>Medium (15%)</option>
+                        <option value="Q">Quartile (25%)</option>
+                        <option value="H">High (30%)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <div class="form-group">
+                    <label for="darkColor">Dark Color</label>
+                    <div class="color-input">
+                        <input type="color" id="darkColor" value="#000000">
+                        <input type="text" id="darkColorText" value="#000000" readonly>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="lightColor">Light Color</label>
+                    <div class="color-input">
+                        <input type="color" id="lightColor" value="#FFFFFF">
+                        <input type="text" id="lightColorText" value="#FFFFFF" readonly>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit">Generate QR Code</button>
+        </form>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Generating QR Code...</p>
+        </div>
+
+        <div class="error" id="error"></div>
+
+        <div class="qr-result" id="result">
+            <img id="qrImage" alt="Generated QR Code">
+            <button class="download-btn" onclick="downloadQR()">Download QR Code</button>
+        </div>
+    </div>
+
+    <script>
+        // Update the API endpoint URL to match your deployment
+        const API_URL = 'http://localhost:7071/api/QRGEN';
+
+        // Update color text inputs when color pickers change
+        document.getElementById('darkColor').addEventListener('input', (e) => {
+            document.getElementById('darkColorText').value = e.target.value;
+        });
+
+        document.getElementById('lightColor').addEventListener('input', (e) => {
+            document.getElementById('lightColorText').value = e.target.value;
+        });
+
+        document.getElementById('qrForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const text = document.getElementById('text').value;
+            const size = parseInt(document.getElementById('size').value);
+            const errorCorrectionLevel = document.getElementById('errorLevel').value;
+            const darkColor = document.getElementById('darkColor').value;
+            const lightColor = document.getElementById('lightColor').value;
+
+            // Hide previous results and errors
+            document.getElementById('result').classList.remove('active');
+            document.getElementById('error').classList.remove('active');
+            document.getElementById('loading').classList.add('active');
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        text,
+                        size,
+                        errorCorrectionLevel,
+                        darkColor,
+                        lightColor,
+                        format: 'dataURL'
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.message || 'Failed to generate QR code');
+                }
+
+                // Display the QR code
+                document.getElementById('qrImage').src = data.dataURL;
+                document.getElementById('result').classList.add('active');
+            } catch (error) {
+                document.getElementById('error').textContent = `Error: ${error.message}`;
+                document.getElementById('error').classList.add('active');
+            } finally {
+                document.getElementById('loading').classList.remove('active');
+            }
+        });
+
+        function downloadQR() {
+            const img = document.getElementById('qrImage');
+            const link = document.createElement('a');
+            link.download = 'qrcode.png';
+            link.href = img.src;
+            link.click();
+        }
+    </script>
+</body>
+</html>
